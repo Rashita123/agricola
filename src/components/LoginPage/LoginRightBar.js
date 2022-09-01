@@ -1,8 +1,23 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-// import { UseAuthenticationContext } from "../../context/AuthenticationContext";
+import { UseAuthenticationContext } from "../../context/AuthenticationContext";
+import { ACTIONS } from "../../reducers/AuthenticationReducer";
 export const LoginRightBar = () => {
-    // const {name} = UseAuthenticationContext();
-    // console.log(name);
+    const { userState, userDispatch } = UseAuthenticationContext();
+    console.log({temp: userState});
+    const [ loginCredentials, setLoginCredentials ] = useState({username: "", password: ""});
+    const updateUsername = (e) => {
+        setLoginCredentials({...loginCredentials, username: e.target.value})
+    }
+    const updatePassword = (e) => {
+        setLoginCredentials({...loginCredentials, password: e.target.value})
+    }
+    const handleLogin = () => {
+        userDispatch({
+            type: ACTIONS.UPDATE_USER,
+            payload: { loginCredentials }
+        })
+    }
     return(
         <div className="w-2/3 ml-5  rounded-xl">
             {/* bg-neutral-500 */}
@@ -11,27 +26,6 @@ export const LoginRightBar = () => {
                     <heading className="font-semibold text-3xl mb-3">Login</heading>
                     <div className="text-neutral-300">Create a new account? <Link to="/register" className="text-sky-500">Register</Link></div>
                 </div>
-
-                <div className="text-neutral-300">
-                    <form action="" className="flex flex-col items-start">
-                        <p>Login as?</p>
-                        <div className="flex flex-row justify-between items-start w-full mt-2 mb-5">
-                            <div className="flex justify-left items-center border-2 border-neutral-700 w-1/3 mr-5 py-3 pl-3 pr-12 rounded-lg text-left hover:bg-neutral-700">
-                                <input type="radio" id="farmer" name="user_type" value="FARMER" className="mr-2"/>
-                                <label for="farmer" className="cursor-pointer text-md">Farmer</label>
-                            </div>
-                            <br/>
-                            <div className="flex justify-left items-center border-2 border-neutral-700 w-1/3 mr-5 py-3 pl-3 pr-12 rounded-lg text-left hover:bg-neutral-700">
-                            <input type="radio" id="lender" name="user_type" value="LENDER" className="mr-2"/>
-                            <label for="lender" className="cursor-pointer text-md">Lender</label>
-                            </div>
-                            <br/>
-                            <div className="flex justify-left items-center border-2 border-neutral-700 w-1/3 py-3 pl-3 pr-12 rounded-lg text-left hover:bg-neutral-700">
-                            <input type="radio" id="staker" name="user_type" value="STAKER" className="mr-2"/>
-                            <label for="staker" className="cursor-pointer text-md">Staker</label>
-                            </div>
-                        </div>
-                    </form>
 
                     <form className="flex flex-col justify-between items-stretch text-left">
                     <div>
@@ -57,6 +51,7 @@ export const LoginRightBar = () => {
                                 "
                                 id="username"
                                 placeholder="Enter username"
+                                onChange={(e) => updateUsername(e)}
                                 />
                         </div>
 
@@ -83,12 +78,14 @@ export const LoginRightBar = () => {
                                 "
                                 id="Password"
                                 placeholder="Enter Password"
+                                onChange={(e) => updatePassword(e)}
                                 />
                         </div>
                     </form>
-                </div>
 
-                <button className="text-white bg-sky-500 hover:bg-sky-800 hover:text-gray-200 w-fit py-3 px-5 rounded-md">Create account</button>
+                <button className="text-white bg-sky-500 hover:bg-sky-800 hover:text-gray-200 w-fit py-3 px-5 rounded-md" 
+                onClick={handleLogin}
+                >Create account</button>
             </div>
         </div>
     )

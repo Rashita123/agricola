@@ -1,10 +1,15 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useReducer } from "react";
+import { authenticationReducer } from "../reducers/AuthenticationReducer";
 
 const authenticationContext = createContext();
 
 export const AuthenticationContextProvider = ({ children }) => {
+    const [ userState, userDispatch ] = useReducer(authenticationReducer, {
+        username: "",
+        password: "",
+    })
     return(
-        <authenticationContext.Provider value={{ "name": "Rashita"}}>
+        <authenticationContext.Provider value={{userState, userDispatch}}>
             {children}
         </authenticationContext.Provider>
     )
