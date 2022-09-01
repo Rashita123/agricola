@@ -4,7 +4,6 @@ import { UseAuthenticationContext } from "../../context/AuthenticationContext";
 import { ACTIONS } from "../../reducers/AuthenticationReducer";
 export const LoginRightBar = () => {
     const { userState, userDispatch } = UseAuthenticationContext();
-    console.log({temp: userState});
     const [ loginCredentials, setLoginCredentials ] = useState({username: "", password: ""});
     const updateUsername = (e) => {
         setLoginCredentials({...loginCredentials, username: e.target.value})
