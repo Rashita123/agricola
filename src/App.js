@@ -1,5 +1,5 @@
 import './App.css';
-import { Register, Login, FarmerDashboard } from "./pages";
+import { Register, Login } from "./pages";
 import { Routes, Route, Link } from "react-router-dom";
 
 function App() {
