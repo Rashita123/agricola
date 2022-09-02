@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { UseAuthenticationContext } from "../../context/AuthenticationContext";
 import { ACTIONS } from "../../reducers/AuthenticationReducer";
@@ -7,6 +7,14 @@ export const LoginRightBar = () => {
     const [ errorMessage, setErrorMessage ] = useState(null); 
     const [ selectedAccount, setSelectedAccount ] = useState(null);
     const [ accountBalance, setAccountBalance ] = useState(0);
+    // useEffect(() => {
+    //     handleConnect();
+    //     if(!userState.selectedMetamaskAccount){
+    //         console.log("Arre ye to connected bhi nai h!");
+    //     }else{
+    //         console.log("Connected to h");
+    //     }
+    // },[])
     const setBalance = (account) => {
         window.ethereum.request({method: "eth_getBalance" , params: [account, "latest"]})
             .then(balance => {
