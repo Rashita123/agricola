@@ -1,7 +1,9 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { Button, MenuItem, Menu as MaterialUIMenu } from "@mui/material";
+import { USER_PROFILE } from "../../utilities/constants";
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -15,6 +17,14 @@ const classNames = (...classes) => {
 };
 
 export const Navbar = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openModal = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const logoutHandler = () => {};
   return (
     <Disclosure as="nav" className="bg-neutral-800 ">
@@ -47,23 +57,40 @@ export const Navbar = () => {
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
-                  <div className="flex space-x-4">
-                    {navigation.map((item) => (
-                      <a
-                        key={item.name}
-                        href={item.href}
-                        className={classNames(
-                          item.current
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "px-3 py-2 rounded-md text-lg font-medium"
-                        )}
-                        aria-current={item.current ? "page" : undefined}
-                      >
-                        {item.name}
-                      </a>
-                    ))}
-                  </div>
+                  <Button
+                    id="basic-button"
+                    aria-controls={openModal ? "basic-menu" : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={openModal ? "true" : undefined}
+                    onClick={handleClick}
+                  >
+                    View As
+                  </Button>
+                  <MaterialUIMenu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={openModal}
+                    onClose={handleClose}
+                    MenuListProps={{
+                      "aria-labelledby": "basic-button",
+                    }}
+                  >
+                    <MenuItem>
+                      <p className="block px-4 py-2 font-medium text-sm text-gray-700">
+                        Lender
+                      </p>
+                    </MenuItem>
+                    <MenuItem>
+                      <p className="block px-4 py-2 font-medium text-sm text-gray-700">
+                        Staker
+                      </p>
+                    </MenuItem>
+                    <MenuItem>
+                      <p className="block px-4 py-2 font-medium text-sm text-gray-700">
+                        Borrower
+                      </p>
+                    </MenuItem>
+                  </MaterialUIMenu>
                 </div>
               </div>
               <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
@@ -98,7 +125,7 @@ export const Navbar = () => {
                       <Menu.Item>
                         {({ active }) => (
                           <Link
-                            to="#"
+                            to={USER_PROFILE.PROFILE_PATH}
                             className={classNames(
                               active ? "bg-gray-100" : "",
                               "block px-4 py-2 text-sm text-gray-700"
@@ -125,13 +152,13 @@ export const Navbar = () => {
                   </Transition>
                 </Menu>
 
-                <button
+                {/* <button
                   type="button"
                   className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
                 >
                   <span className="sr-only">View notifications</span>
                   <BellIcon className="h-8 w-8" aria-hidden="true" />
-                </button>
+                </button> */}
               </div>
             </div>
           </div>
