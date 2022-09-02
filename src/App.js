@@ -8,7 +8,7 @@ import {
   Borrower,
 } from "./pages";
 import { Routes, Route } from "react-router-dom";
-import { Navbar } from "./components/UI";
+import { Navbar } from "./components/global";
 import { USER_PROFILE } from "./utilities/constants";
 
 function App() {
