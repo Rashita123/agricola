@@ -75,27 +75,27 @@ export const Navbar = () => {
                       "aria-labelledby": "basic-button",
                     }}
                   >
-                    <MenuItem>
-                      <p className="block px-4 py-2 font-medium text-sm text-gray-700">
-                        <Link to="/lend" onClick={handleClose}>
+                    <Link to="/lend" onClick={handleClose}>
+                      <MenuItem>
+                        <p className="block px-4 py-2 font-medium text-sm text-gray-700">
                           Lender
-                        </Link>
-                      </p>
-                    </MenuItem>
-                    <MenuItem>
-                      <p className="block px-4 py-2 font-medium text-sm text-gray-700">
-                        <Link to="/stake" onClick={handleClose}>
+                        </p>
+                      </MenuItem>
+                    </Link>
+                    <Link to="/stake" onClick={handleClose}>
+                      <MenuItem>
+                        <p className="block px-4 py-2 font-medium text-sm text-gray-700">
                           Stake
-                        </Link>
-                      </p>
-                    </MenuItem>
-                    <MenuItem>
-                      <p className="block px-4 py-2 font-medium text-sm text-gray-700">
-                        <Link to="/borrow" onClick={handleClose}>
+                        </p>
+                      </MenuItem>
+                    </Link>
+                    <Link to="/borrow" onClick={handleClose}>
+                      <MenuItem>
+                        <p className="block px-4 py-2 font-medium text-sm text-gray-700">
                           Borrow
-                        </Link>
-                      </p>
-                    </MenuItem>
+                        </p>
+                      </MenuItem>
+                    </Link>
                   </MaterialUIMenu>
                 </div>
               </div>
