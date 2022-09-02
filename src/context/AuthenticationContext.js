@@ -7,6 +7,7 @@ export const AuthenticationContextProvider = ({ children }) => {
     const [ userState, userDispatch ] = useReducer(authenticationReducer, {
         username: "",
         password: "",
+        selectedMetamaskAccount: null,
     })
     return(
         <authenticationContext.Provider value={{userState, userDispatch}}>
