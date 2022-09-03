@@ -1,9 +1,11 @@
 import { Fragment, useState } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
+import { UseAuthenticationContext } from "../../context/AuthenticationContext";
+import { Disclosure, Menu, Transition } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Button, MenuItem, Menu as MaterialUIMenu } from "@mui/material";
 import { USER_PROFILE } from "../../utilities/constants";
+import { ACTIONS } from "../../reducers/AuthenticationReducer";
 
 const navigation = [
   { name: "Dashboard", href: "#", current: true },
@@ -18,6 +20,7 @@ const classNames = (...classes) => {
 
 export const Navbar = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const { userState, userDispatch } = UseAuthenticationContext();
   const openModal = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -25,7 +28,13 @@ export const Navbar = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const logoutHandler = () => {};
+  const logoutHandler = () => {
+    localStorage.removeItem("metamask-account");
+    localStorage.removeItem("accessToken");
+    userDispatch({
+      type: ACTIONS.LOGOUT,
+    });
+  };
   return (
     <Disclosure as="nav" className="bg-neutral-800 ">
       {({ open }) => (
@@ -146,11 +155,11 @@ export const Navbar = () => {
                           <div
                             className={classNames(
                               active ? "bg-gray-100" : "",
-                              "block px-4 py-2 text-sm text-gray-700"
+                              "block px-4 py-2 text-sm text-gray-700 cursor-pointer"
                             )}
                             onClick={logoutHandler}
                           >
-                            Sign Out
+                            Log Out
                           </div>
                         )}
                       </Menu.Item>
