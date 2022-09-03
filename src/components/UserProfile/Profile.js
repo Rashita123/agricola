@@ -1,7 +1,6 @@
 export const Profile = () => {
   const submitHandler = (event) => {
     event.preventDefault();
-    console.log("submit");
   };
 
   return (

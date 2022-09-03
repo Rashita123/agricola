@@ -8,6 +8,7 @@ export const AuthenticationContextProvider = ({ children }) => {
         username: "",
         password: "",
         selectedMetamaskAccount: null,
+        accountBalance: null
     })
     return(
         <authenticationContext.Provider value={{userState, userDispatch}}>
