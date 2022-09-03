@@ -6,8 +6,8 @@ import {
   Lender,
   Staker,
   Borrower,
-  Admin
 } from "./pages";
+import { Admin, AdminLogin } from "./admin";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/global";
 import { USER_PROFILE } from "./utilities/constants";
@@ -23,6 +23,7 @@ function App() {
         <Route path="/stake" element={<Staker />} />
         <Route path="/borrow" element={<Borrower />} />
         <Route path="/admin" element={<Admin/>}/>
+        <Route path="/adminlogin" element={<AdminLogin/>}/>
         <Route
           path={`/${USER_PROFILE.PROFILE_PATH}`}
           element={<ProfilePage />}

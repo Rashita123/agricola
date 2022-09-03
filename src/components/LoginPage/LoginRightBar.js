@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
+import { Link } from "react-router-dom";
 import { UseAuthenticationContext } from "../../context/AuthenticationContext";
 import { ACTIONS } from "../../reducers/AuthenticationReducer";
 export const LoginRightBar = () => {
@@ -116,9 +117,8 @@ export const LoginRightBar = () => {
                         </div>
                     </form> */}
 
-                {/* <button className="text-white bg-sky-500 hover:bg-sky-800 hover:text-gray-200 w-fit py-3 px-5 rounded-md" 
-                onClick={handleLogin}
-                >Login</button> */}
+                <Link to="/adminlogin"><button className="text-white bg-sky-500 hover:bg-sky-800 hover:text-gray-200 w-fit py-3 px-5 rounded-md" 
+                >Login as Admin</button></Link>
             </div>
         </div>
     )
