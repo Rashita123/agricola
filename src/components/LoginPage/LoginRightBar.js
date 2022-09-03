@@ -11,6 +11,7 @@ export const LoginRightBar = () => {
     useEffect(() => {
         if(localStorage.getItem("metamask-account")){
             setMetamask(localStorage.getItem("metamask-account"))
+            setConnected(true);
         }else{
             setConnected(false);
         }
