@@ -30,6 +30,7 @@ export const Navbar = () => {
   };
   const logoutHandler = () => {
     localStorage.removeItem("metamask-account");
+    localStorage.removeItem("accessToken");
     userDispatch({
       type: ACTIONS.LOGOUT,
     });
