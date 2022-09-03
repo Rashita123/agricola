@@ -5,6 +5,8 @@ import { UseAuthenticationContext } from "../../context/AuthenticationContext";
 import { ACTIONS } from "../../reducers/AuthenticationReducer";
 import { userLogin } from "../../api/user";
 import { USER_PROFILE } from "../../utilities/constants";
+import Alert from "@mui/material/Alert";
+
 export const LoginRightBar = () => {
   const navigate = useNavigate();
   const { userState, userDispatch } = UseAuthenticationContext();
@@ -67,7 +69,10 @@ export const LoginRightBar = () => {
   return (
     <div className="w-2/3 ml-5  rounded-xl">
       <div className="w-3/5 m-auto flex flex-col justify-around py-5 text-white">
-        <div className="flex flex-col items-start">
+        {helperText.display ? (
+          <Alert severity="error">{helperText.message}</Alert>
+        ) : null}
+        <div className="flex flex-col items-start p-3">
           <heading className="font-semibold text-3xl mb-3">Login</heading>
         </div>
         <button
