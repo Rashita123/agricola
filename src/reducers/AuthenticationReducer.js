@@ -5,6 +5,7 @@ export const ACTIONS = {
     UPDATE_METAMASK: "update-metamask",
     UPDATE_BALANCE: "update-balance",
     LOGOUT: "logout",
+    LOGIN_AS_ADMIN: "login-as-admin",
 }
 
 export const authenticationReducer = (state, action) => {
@@ -26,6 +27,9 @@ export const authenticationReducer = (state, action) => {
         }
         case ACTIONS.LOGOUT: {
             return { ...state, selectedMetamaskAccount:null, accountBalance: null }
+        }
+        case ACTIONS.LOGIN_AS_ADMIN: {
+            return { ...state, loginAsAdmin: true }
         }
 
         default: {

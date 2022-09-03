@@ -1,14 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RegisterLeftBar } from "../components/RegisterPage";
+import { UseAuthenticationContext } from "../context/AuthenticationContext";
+import { ACTIONS } from "../reducers/AuthenticationReducer";
 export const AdminLogin = () => {
     let navigate = useNavigate();
     const [ username, setUsername ] = useState("");
     const [ password, setPassword ] = useState("");
     const [ errorMessage, setErrorMessage ] = useState(null);
+    const { userState, userDispatch } = UseAuthenticationContext();
     const handleAdminLogin = () => {
         if(username === "admin" && password === "admin@123"){
             setErrorMessage(null);
+            userDispatch({
+                type: ACTIONS.LOGIN_AS_ADMIN,
+            })
             navigate('/admin');
         }else{
             setErrorMessage("Wrong Credentials");
