@@ -1,7 +1,6 @@
 export const Kyc = () => {
   const submitHandler = (event) => {
     event.preventDefault();
-    console.log("submit");
   };
   return (
     <div className="bg-indigo-50 p-10 h-full rounded-3xl">
