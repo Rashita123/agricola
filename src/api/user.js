@@ -18,6 +18,7 @@ export const userLogin = async (address) => {
   if (result.statusText === "OK") {
     return {
       accessToken: result.data.accessToken,
+      userDetails: result.data.userDetails,
       message: null,
     };
   } else {
@@ -58,4 +59,21 @@ export const updateProfile = async (
   });
 
   console.log(result);
+};
+
+export const fetchUserDetails = async () => {
+  const accessToken = localStorage.getItem("accessToken");
+  const result = await axios({
+    method: "post",
+    url: `${BASE_URL}/user/fetch_user_details`,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  console.log(result, result.data.userDetails);
+  if (result.statusText === "OK") {
+    return { userDetails: result.data.userDetails, error: false };
+  } else {
+    return { userDetails: null, error: true };
+  }
 };

@@ -7,6 +7,7 @@ export const ACTIONS = {
   LOGOUT: "logout",
   LOGIN_AS_ADMIN: "login-as-admin",
   KYC_COMPLETE: "kyc-complete",
+  UPDATE_PROFILE_DATA: "update-profile-data",
 };
 
 export const authenticationReducer = (state, action) => {
@@ -34,13 +35,38 @@ export const authenticationReducer = (state, action) => {
       return { ...state, accountBalance: action.payload.accountBalance };
     }
     case ACTIONS.LOGOUT: {
-      return { ...state, selectedMetamaskAccount: null, accountBalance: null };
+      return {
+        ...state,
+        selectedMetamaskAccount: null,
+        accountBalance: null,
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: "",
+        streetAddress: "",
+        province: "",
+        city: "",
+        zipcode: "",
+      };
     }
     case ACTIONS.LOGIN_AS_ADMIN: {
       return { ...state, loginAsAdmin: true };
     }
     case ACTIONS.KYC_COMPLETE: {
       return { ...state, kycCompleted: true };
+    }
+    case ACTIONS.UPDATE_PROFILE_DATA: {
+      return {
+        ...state,
+        firstName: action.payload.firstName,
+        lastName: action.payload.lastName,
+        email: action.payload.email,
+        phoneNumber: action.payload.phoneNumber,
+        streetAddress: action.payload.streetAddress,
+        province: action.payload.state,
+        city: action.payload.city,
+        zipcode: action.payload.pincode,
+      };
     }
 
     default: {

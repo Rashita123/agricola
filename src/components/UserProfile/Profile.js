@@ -1,19 +1,50 @@
-import { useState } from "react";
-import { updateProfile } from "../../api/user";
+import { useEffect, useState } from "react";
+import { fetchUserDetails, updateProfile } from "../../api/user";
+import { UseAuthenticationContext } from "../../context/AuthenticationContext";
+import { ACTIONS } from "../../reducers/AuthenticationReducer";
 
 export const Profile = () => {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [streetAddress, setStreetAddress] = useState("");
-  const [province, setProvince] = useState("");
-  const [city, setCity] = useState("");
-  const [zipCode, setZipCode] = useState("");
+  const { userState, userDispatch } = UseAuthenticationContext();
+  const [firstName, setFirstName] = useState(userState.firstName);
+  const [lastName, setLastName] = useState(userState.lastName);
+  const [email, setEmail] = useState(userState.email);
+  const [phoneNumber, setPhoneNumber] = useState(userState.phoneNumber);
+  const [streetAddress, setStreetAddress] = useState(userState.streetAddress);
+  const [province, setProvince] = useState(userState.province);
+  const [city, setCity] = useState(userState.city);
+  const [zipCode, setZipCode] = useState(userState.zipcode);
+
+  useEffect(() => {
+    console.log("hiiii");
+
+    const fetchProfile = async () => {
+      const result = await fetchUserDetails();
+
+      console.log("result   ", result.userDetails, result.error);
+
+      if (!result.error) {
+        userDispatch({
+          type: ACTIONS.UPDATE_PROFILE_DATA,
+          payload: result.userDetails,
+        });
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    console.log(city, province);
+    console.log(
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      streetAddress,
+      province,
+      city,
+      zipCode
+    );
     const result = await updateProfile(
       firstName,
       lastName,
@@ -62,6 +93,7 @@ export const Profile = () => {
                           id="first-name"
                           autoComplete="given-name"
                           required
+                          value={firstName}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                           onChange={(e) => setFirstName(e.target.value)}
                         />
@@ -80,6 +112,7 @@ export const Profile = () => {
                           id="last-name"
                           autoComplete="family-name"
                           required
+                          value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
@@ -98,6 +131,7 @@ export const Profile = () => {
                           id="email-address"
                           autoComplete="email"
                           required
+                          value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
@@ -118,6 +152,7 @@ export const Profile = () => {
                           maxLength={10}
                           autoComplete="phone"
                           required
+                          value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
@@ -136,6 +171,7 @@ export const Profile = () => {
                           id="street-address"
                           autoComplete="street-address"
                           required
+                          value={streetAddress}
                           onChange={(e) => setStreetAddress(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
@@ -154,6 +190,7 @@ export const Profile = () => {
                           id="city"
                           autoComplete="address-level2"
                           required
+                          value={city}
                           onChange={(e) => setCity(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
@@ -172,6 +209,7 @@ export const Profile = () => {
                           id="state"
                           autoComplete="address-level1"
                           required
+                          value={province}
                           onChange={(e) => setProvince(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
@@ -190,6 +228,7 @@ export const Profile = () => {
                           id="postal-code"
                           autoComplete="postal-code"
                           required
+                          value={zipCode}
                           onChange={(e) => setZipCode(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />

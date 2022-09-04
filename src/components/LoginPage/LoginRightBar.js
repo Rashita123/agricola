@@ -15,6 +15,7 @@ export const LoginRightBar = () => {
   const [accountBalance, setAccountBalance] = useState(0);
   const [connected, setConnected] = useState(false);
   const [helperText, setHelperText] = useState({ display: false, message: "" });
+
   useEffect(() => {
     if (localStorage.getItem("metamask-account")) {
       setMetamask(localStorage.getItem("metamask-account"));
@@ -50,14 +51,20 @@ export const LoginRightBar = () => {
         .then(async (result) => {
           const address = result[0];
 
-          const res = await userLogin(address);
-          if (res.message) {
-            setHelperText({ display: true, message: res.message });
+          const { accessToken, userDetails, message } = await userLogin(
+            address
+          );
+          if (message) {
+            setHelperText({ display: true, message: message });
           } else {
-            localStorage.setItem("accessToken", res.accessToken);
+            localStorage.setItem("accessToken", accessToken);
             setMetamask(address);
             localStorage.setItem("metamask-account", address);
             setConnected(true);
+            userDispatch({
+              type: ACTIONS.UPDATE_PROFILE_DATA,
+              payload: userDetails,
+            });
             navigate(`/${USER_PROFILE.PROFILE_PATH}`);
           }
         });

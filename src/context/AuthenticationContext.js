@@ -10,7 +10,7 @@ export const AuthenticationContextProvider = ({ children }) => {
     email: "",
     phoneNumber: "",
     streetAddress: "",
-    state: "",
+    province: "",
     city: "",
     zipcode: "",
     selectedMetamaskAccount: null,
