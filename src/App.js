@@ -6,6 +6,7 @@ import {
   Lender,
   Staker,
   Borrower,
+  Landing
 } from "./pages";
 import { Admin, AdminLogin } from "./admin";
 import { Routes, Route } from "react-router-dom";
@@ -40,6 +41,7 @@ function App() {
       </Route> */}
 
       <Routes>
+      <Route path="/landing" element={<Landing />} />
         <Route path="/" element={<PrivateRoute />}>
           <Route path="/lend" element={<Lender />} />
           <Route path="/stake" element={<Staker />} />
