@@ -1,6 +1,30 @@
+import { useState } from "react";
+import { updateProfile } from "../../api/user";
+
 export const Profile = () => {
-  const submitHandler = (event) => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [streetAddress, setStreetAddress] = useState("");
+  const [province, setProvince] = useState("");
+  const [city, setCity] = useState("");
+  const [zipCode, setZipCode] = useState("");
+
+  const submitHandler = async (event) => {
     event.preventDefault();
+    console.log(city, province);
+    const result = await updateProfile(
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      streetAddress,
+      province,
+      city,
+      zipCode
+    );
+    console.log("api done");
   };
 
   return (
@@ -22,9 +46,8 @@ export const Profile = () => {
                     consent.
                   </p>
                 </div>
-
                 <div className="mt-5 md:mt-0 md:col-span-2">
-                  <form onSubmit={submitHandler}>
+                  <form>
                     <div className="grid grid-cols-6 gap-6">
                       <div className="col-span-6 sm:col-span-3">
                         <label
@@ -34,12 +57,13 @@ export const Profile = () => {
                           First name
                         </label>
                         <input
-                          // formControlName="firstName"
                           type="text"
                           name="first-name"
                           id="first-name"
                           autoComplete="given-name"
+                          required
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
+                          onChange={(e) => setFirstName(e.target.value)}
                         />
                       </div>
 
@@ -51,11 +75,12 @@ export const Profile = () => {
                           Last name
                         </label>
                         <input
-                          // formControlName="lastName"
                           type="text"
                           name="last-name"
                           id="last-name"
                           autoComplete="family-name"
+                          required
+                          onChange={(e) => setLastName(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
@@ -68,11 +93,12 @@ export const Profile = () => {
                           Email address
                         </label>
                         <input
-                          // formControlName="email"
                           type="email"
                           name="email-address"
                           id="email-address"
                           autoComplete="email"
+                          required
+                          onChange={(e) => setEmail(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
@@ -85,34 +111,17 @@ export const Profile = () => {
                           Phone Number
                         </label>
                         <input
-                          // formControlName="phone"
                           type="tel"
                           name="phone"
                           id="phone"
                           minLength={10}
                           maxLength={10}
                           autoComplete="phone"
+                          required
+                          onChange={(e) => setPhoneNumber(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
-
-                      {/* <div className="col-span-6 sm:col-span-3">
-                        <label
-                          for="country"
-                          className="block text-base font-medium text-gray-700"
-                        >
-                          Country
-                        </label>
-                        <select
-                          formControlName="country"
-                          id="country"
-                          name="country"
-                          autoComplete="country-name"
-                          className="mt-1 h-14 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-base"
-                        >
-                          <option>India</option>
-                        </select>
-                      </div> */}
 
                       <div className="col-span-6">
                         <label
@@ -122,11 +131,12 @@ export const Profile = () => {
                           Street address
                         </label>
                         <input
-                          // formControlName="streetAddress"
                           type="text"
                           name="street-address"
                           id="street-address"
                           autoComplete="street-address"
+                          required
+                          onChange={(e) => setStreetAddress(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
@@ -139,11 +149,12 @@ export const Profile = () => {
                           City
                         </label>
                         <input
-                          // formControlName="city"
                           type="text"
                           name="city"
                           id="city"
                           autoComplete="address-level2"
+                          required
+                          onChange={(e) => setCity(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
@@ -156,11 +167,12 @@ export const Profile = () => {
                           State / Province
                         </label>
                         <input
-                          // formControlName="state"
                           type="text"
                           name="state"
                           id="state"
                           autoComplete="address-level1"
+                          required
+                          onChange={(e) => setProvince(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
@@ -173,17 +185,19 @@ export const Profile = () => {
                           ZIP / Postal code
                         </label>
                         <input
-                          // formControlName="zip"
                           type="number"
                           name="postal-code"
                           id="postal-code"
                           autoComplete="postal-code"
+                          required
+                          onChange={(e) => setZipCode(e.target.value)}
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                         />
                       </div>
                       <div className="col-span-6 sm:col-span-3 lg:col-span-2">
                         <button
                           type="submit"
+                          onClick={submitHandler}
                           className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           Submit
