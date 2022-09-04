@@ -26,3 +26,36 @@ export const userLogin = async (address) => {
     };
   }
 };
+
+export const updateProfile = async (
+  firstName,
+  lastName,
+  email,
+  phoneNumber,
+  streetAddress,
+  state,
+  city,
+  pincode
+) => {
+  const accessToken = localStorage.getItem("accessToken");
+  const result = await axios({
+    method: "post",
+    url: `${BASE_URL}/user/save_profile`,
+    headers: {
+      "Content-Type": "Application/json",
+      Authorization: `Bearer ${accessToken}`,
+    },
+    data: {
+      firstName,
+      lastName,
+      email,
+      phoneNumber,
+      streetAddress,
+      state,
+      city,
+      pincode,
+    },
+  });
+
+  console.log(result);
+};

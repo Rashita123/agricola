@@ -15,13 +15,7 @@ export const BorrowPage = () => {
     } else {
       setDisplayModal(true);
     }
-  }, [userState.kycCompleted]);
-
-  const completeKycTemp = () => {
-    userDispatch({
-      type: ACTIONS.KYC_COMPLETE,
-    });
-  };
+  }, []);
 
   return (
     <React.Fragment>

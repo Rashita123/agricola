@@ -1,6 +1,13 @@
+import { UseAuthenticationContext } from "../../context/AuthenticationContext";
+import { ACTIONS } from "../../reducers/AuthenticationReducer";
+
 export const Kyc = () => {
   const submitHandler = (event) => {
+    const { userState, userDispatch } = UseAuthenticationContext();
     event.preventDefault();
+    userDispatch({
+      type: ACTIONS.KYC_COMPLETE,
+    });
   };
   return (
     <div className="bg-indigo-50 p-10 h-full rounded-3xl">

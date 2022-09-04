@@ -5,8 +5,14 @@ const authenticationContext = createContext();
 
 export const AuthenticationContextProvider = ({ children }) => {
   const [userState, userDispatch] = useReducer(authenticationReducer, {
-    username: "",
-    password: "",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    streetAddress: "",
+    state: "",
+    city: "",
+    zipcode: "",
     selectedMetamaskAccount: null,
     accountBalance: null,
     loginAsAdmin: false,
