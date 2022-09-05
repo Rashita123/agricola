@@ -7,6 +7,9 @@ import { userLogin } from "../../api/user";
 import { USER_PROFILE } from "../../utilities/constants";
 import Alert from "@mui/material/Alert";
 
+import { useWeb3React } from '@web3-react/core'
+import { InjectedConnector } from '@web3-react/injected-connector'
+
 export const LoginRightBar = () => {
   const navigate = useNavigate();
   const { userState, userDispatch } = UseAuthenticationContext();
@@ -15,6 +18,10 @@ export const LoginRightBar = () => {
   const [accountBalance, setAccountBalance] = useState(0);
   const [connected, setConnected] = useState(false);
   const [helperText, setHelperText] = useState({ display: false, message: "" });
+
+  const injectedConnector = new InjectedConnector({ supportedChainIds: [80001], })
+  const { activate, active } = useWeb3React()
+
   useEffect(() => {
     if (localStorage.getItem("metamask-account")) {
       setMetamask(localStorage.getItem("metamask-account"));
@@ -43,8 +50,9 @@ export const LoginRightBar = () => {
     });
     setBalance(account);
   };
-  const handleConnect = () => {
-    if (window.ethereum) {
+  useEffect(() => {
+    if (active && window.ethereum) {
+      window.ethereum.enable().then(() => console.log('enabled'))
       window.ethereum
         .request({ method: "eth_requestAccounts" })
         .then(async (result) => {
@@ -64,6 +72,13 @@ export const LoginRightBar = () => {
     } else {
       setErrorMessage("Install Metamask to continue");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active])
+  const handleConnect = async () => {
+    console.log('handleConnect')
+    await activate(injectedConnector)
+    console.log('web3 active', active)
+
   };
   window.ethereum.on("accountsChanged", () => window.location.reload());
   return (
@@ -78,13 +93,13 @@ export const LoginRightBar = () => {
         <button
           disabled={connected}
           onClick={handleConnect}
-          className="cursor-pointer text-white bg-sky-500 hover:bg-sky-800 hover:text-gray-200 w-fit py-3 px-5 rounded-md disabled:bg-gray-700 disabled:cursor-not-allowed"
+          className="cursor-pointer text-white bg-sky-500 hover:bg-sky-800 hover:text-gray-200 w-fit py-3 px-5 rounded-md disabled:bg-gray-700 disabled:cursor-not-allowed mb-4"
         >
           Connect To Metamask
         </button>
         {errorMessage && <span>{errorMessage}</span>}
-        Account: {<span>{userState.selectedMetamaskAccount}</span>}
-        Balance: {<span>{userState.accountBalance}</span>}
+        {userState.selectedMetamaskAccount && `Account: {<span>{userState.selectedMetamaskAccount}</span>}`}
+        {userState.accountBalance && `Balance: {<span>{userState.accountBalance}</span>}`}
         {/* <form className="flex flex-col justify-between items-stretch text-left">
                     <div>
                             <span>Username</span>
