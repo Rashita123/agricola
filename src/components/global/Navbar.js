@@ -34,6 +34,7 @@ export const Navbar = () => {
     userDispatch({
       type: ACTIONS.LOGOUT,
     });
+    window.location.reload();
   };
   return (
     <Disclosure as="nav" className="bg-neutral-800 ">
