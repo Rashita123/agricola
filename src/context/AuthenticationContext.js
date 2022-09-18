@@ -16,7 +16,13 @@ export const AuthenticationContextProvider = ({ children }) => {
     selectedMetamaskAccount: null,
     accountBalance: null,
     loginAsAdmin: false,
+    aadhaarNumber: "",
+    panNumber: "",
+    income: "",
+    occupation: "",
+    about: "",
     kycCompleted: false,
+    kysStatus: "", // (incomplete, pending, completed)
   });
   return (
     <authenticationContext.Provider value={{ userState, userDispatch }}>

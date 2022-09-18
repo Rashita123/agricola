@@ -77,3 +77,34 @@ export const fetchUserDetails = async () => {
     return { userDetails: null, error: true };
   }
 };
+
+export const updateKycDetails = async (
+  metamaskAccount,
+  aadhaarNumber,
+  panNumber,
+  income,
+  occupation,
+  about
+) => {
+  const result = await axios({
+    method: "post",
+    url: `${BASE_URL}/user/update_kyc_details`,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      metamaskAccount,
+      aadhaarNumber,
+      panNumber,
+      income,
+      occupation,
+      about,
+    },
+  });
+  console.log("KYC DATA RESULT -> ", result, result.data.userDetails);
+  if (result.statusText === "OK") {
+    return { userDetails: result.data.userDetails, error: false };
+  } else {
+    return { userDetails: null, error: true };
+  }
+};

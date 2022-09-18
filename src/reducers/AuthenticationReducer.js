@@ -39,6 +39,7 @@ export const authenticationReducer = (state, action) => {
         ...state,
         selectedMetamaskAccount: null,
         accountBalance: null,
+
         firstName: "",
         lastName: "",
         email: "",
@@ -47,6 +48,14 @@ export const authenticationReducer = (state, action) => {
         province: "",
         city: "",
         zipcode: "",
+
+        aadhaarNumber: "",
+        panNumber: "",
+        income: "",
+        occupation: "",
+        about: "",
+        kycCompleted: false,
+        kysStatus: "",
       };
     }
     case ACTIONS.LOGIN_AS_ADMIN: {
@@ -66,6 +75,13 @@ export const authenticationReducer = (state, action) => {
         province: action.payload.state,
         city: action.payload.city,
         zipcode: action.payload.pincode,
+
+        aadhaarNumber: action.payload.aadhaarNumber,
+        panNumber: action.payload.panNumber,
+        income: action.payload.income,
+        occupation: action.payload.occupation,
+        about: action.payload.about,
+        kycCompleted: action.payload.isKycVerified,
       };
     }
 

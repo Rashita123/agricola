@@ -20,7 +20,7 @@ export const Profile = () => {
     const fetchProfile = async () => {
       const result = await fetchUserDetails();
 
-      console.log("result   ", result.userDetails, result.error);
+      console.log("result   ", result.userDetails, result);
 
       if (!result.error) {
         userDispatch({
