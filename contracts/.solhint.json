@@ -20,6 +20,7 @@
     ],
     "const-name-snakecase": "off",
     "func-name-mixedcase": "off",
+    "event-name-camelcase": "off",
     "var-name-mixedcase": "off",
     "contract-name-camelcase": "off",
     "constructor-syntax": "error",

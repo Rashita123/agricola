@@ -4,11 +4,13 @@ pragma solidity 0.8.17;
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Lend is ChainlinkClient, Ownable {
+contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
     using SafeERC20 for IERC20;
+
+    uint256 public constant MIN_VOTES = 1;
 
     address public governance;
     uint256 public FEES_NUMERATOR = 30; // 3% protocl fees on withdraw
@@ -17,42 +19,134 @@ contract Lend is ChainlinkClient, Ownable {
     mapping(address => mapping(address => uint256)) public lendingBalance;
     mapping(address => uint256) public uniqueTokensLent;
     mapping(address => address) public tokenPriceFeedMapping;
-    address[] allowedTokens;
+    address[] public allowedTokens;
     address[] public lenders;
+    mapping(address => uint16) public tokenMultiplier;
 
     event Lent(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount, uint256 fees);
 
-    IERC20 public agriLendToken;
+    mapping(address => bool) public auth;
 
-    constructor(address _agriLendTokenAddress) {
-        agriLendToken = IERC20(_agriLendTokenAddress);
-        governance = msg.sender;
+    struct Loan {
+        address token;
+        uint256 principal;
+        uint256 totalAmount;
+        uint256 duration;
+        uint256 currentVoteCount;
+        uint256 totalVotesRequired;
+        address borrower;
+        bool active;
+        bool repaid;
+        bool approved;
+        string ipfsHash;
     }
 
-    function addAllowedTokens(address token) public onlyOwner {
+    event newLoanRequest(uint256 indexed loanId);
+    event loanApproved(uint256 indexed loanId);
+    event loanRepaid(uint256 indexed loanId);
+    event loanLiquidated(uint256 indexed loanId);
+
+    mapping(uint256 => Loan) public loans;
+    uint256 public loanId;
+
+    // staker => loanId => voted
+    mapping(address => mapping(uint256 => bool)) votes;
+
+    constructor() {
+        governance = msg.sender;
+        auth[msg.sender] = true;
+    }
+
+    modifier onlyAuth() {
+        require(auth[msg.sender], "lend: not allowed");
+        _;
+    }
+    modifier onlyGovernance() {
+        require(msg.sender == governance, "lend: not allowed, only governance");
+        _;
+    }
+
+    function updateAuth(address _who, bool _toggle) external onlyGovernance {
+        auth[_who] = _toggle;
+    }
+
+    function addAllowedTokens(address token) public onlyGovernance {
         allowedTokens.push(token);
+    }
+
+    function updateMultiplier(
+        address token,
+        uint16 multiplier
+    ) external onlyGovernance {
+        tokenMultiplier[token] = multiplier;
     }
 
     function setPriceFeedContract(
         address token,
         address priceFeed
-    ) public onlyOwner {
+    ) public onlyGovernance {
         tokenPriceFeedMapping[token] = priceFeed;
     }
 
-    function lendTokens(uint256 _amount, address token) external {
+    function lendTokens(uint256 _amount, address _token) external {
         // important require checks
         require(_amount > 0, "lend: amount cannot be 0");
-        require(tokenIsAllowed(token), "lend: unauthorized token");
+        require(tokenIsAllowed(_token), "lend: unauthorized token");
 
         // update storage variables
-        updateUniqueTokensLent(msg.sender, token);
-        lendingBalance[token][msg.sender] += _amount;
+        updateUniqueTokensLent(msg.sender, _token);
+        lendingBalance[_token][msg.sender] += _amount;
 
         emit Lent(msg.sender, _amount);
         // follow check effects interaction pattern
-        IERC20(token).safeTransferFrom(msg.sender, address(this), _amount);
+        IERC20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        // keep 1-1
+        uint256 sharesToMint = getSharesToMint(_token, _amount);
+        _mint(msg.sender, sharesToMint);
+    }
+
+    function getSharesToMint(
+        address token,
+        uint256 amount
+    ) public view returns (uint256) {
+        return (amount * uint256(tokenMultiplier[token])) / 1000;
+    }
+
+    function mintShares(
+        address who,
+        address token,
+        uint256 amount
+    ) external onlyAuth {
+        _mint(who, getSharesToMint(token, amount));
+        IERC20(token).transferFrom(who, address(this), amount);
+    }
+
+    function withdrawShares(address token, uint amount) external {
+        require(balanceOf(msg.sender) >= amount, "lend: no outstanding shares");
+
+        uint256 fees = processFeesAmount(amount);
+        uint256 amountAfterFees = amount - fees;
+
+        uint256 amountToBurn = getSharesToBurn(token, amount);
+        _burn(msg.sender, amountToBurn);
+        IERC20(token).transfer(msg.sender, amountAfterFees);
+    }
+
+    function getSharesToBurn(
+        address token,
+        uint256 amount
+    ) public view returns (uint256) {
+        return (amount * 1000) / uint256(tokenMultiplier[token]);
+    }
+
+    function burnShares(
+        address who,
+        address token,
+        uint256 amount
+    ) external onlyAuth {
+        _burn(who, getSharesToMint(token, amount));
+        IERC20(token).transfer(who, amount);
     }
 
     function withdrawTokens(uint256 _amount, address _token) public {
@@ -150,21 +244,29 @@ contract Lend is ChainlinkClient, Ownable {
         return uint256(price);
     }
 
-    function receieveTokens() public {
-        uint256 totalAmount = getUserTotalValue(msg.sender);
-        require(totalAmount > 0, "lend:no funds lent");
-        agriLendToken.transfer(msg.sender, totalAmount);
-    }
-
-    function issueTokens() public onlyOwner {
-        // Issue tokens to all lenders
-        for (
-            uint256 lendersIndex = 0;
-            lendersIndex < lenders.length;
-            lendersIndex++
-        ) {
-            address recipient = lenders[lendersIndex];
-            agriLendToken.transfer(recipient, getUserTotalValue(recipient));
-        }
+    function createBorrowRequest(
+        address token,
+        uint256 principal,
+        uint256 totalAmount,
+        uint256 duration,
+        uint256 totalVotesRequired,
+        address borrower,
+        string memory ipfsHash
+    ) external {
+        require(totalVotesRequired >= MIN_VOTES, "lend: invalid min votes");
+        Loan memory loan = Loan(
+            token,
+            principal,
+            totalAmount,
+            duration,
+            0 /* currentVoteCount */,
+            totalVotesRequired,
+            borrower,
+            true /* active */,
+            false /* repaid */,
+            false /* approved */,
+            ipfsHash
+        );
+        loans[loanId++] = loan;
     }
 }
