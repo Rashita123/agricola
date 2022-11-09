@@ -321,8 +321,7 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
     function liquidateLoan(uint256 _loanId) external {
         Loan memory loan = loans[_loanId];
         require(
-            (loan.active && !loan.repaid) ||
-                block.timestamp > loan.endTimestamp,
+            loan.active && !loan.repaid && block.timestamp > loan.endTimestamp,
             "lend: cannot liquidate loan"
         );
         address[] memory stakers = voters[_loanId];

@@ -182,9 +182,9 @@ describe("AGRICOLA", function () {
         await USDCToken.faucet(await staker.getAddress(), STAKE_AMT);
         await stakeContract.connect(staker).vote(loanId, VOTE_AMT);
 
-        // await ethers.provider.send("evm_increaseTime", [
-        //     block.timestamp + 7200,
-        // ]);
+        await ethers.provider.send("evm_increaseTime", [
+            block.timestamp + 7201,
+        ]);
 
         await lendContract.liquidateLoan(loanId);
     });
