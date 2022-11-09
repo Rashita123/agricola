@@ -31,10 +31,12 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
     struct Loan {
         address token;
         uint256 principal;
+        uint256 rateInBasisPoints;
         uint256 totalAmount;
-        uint256 duration;
+        uint256 endTimestamp;
         uint256 currentVoteCount;
         uint256 totalVotesRequired;
+        uint256 totalAmountVoted;
         address borrower;
         bool active;
         bool repaid;
@@ -50,12 +52,14 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
     mapping(uint256 => Loan) public loans;
     uint256 public loanId;
 
-    // staker => loanId => voted
-    mapping(address => mapping(uint256 => bool)) votes;
+    // staker => loanId => voted ratio
+    mapping(address => mapping(uint256 => uint256)) public votes;
+    mapping(uint256 => address[]) public voters;
 
     constructor() {
         governance = msg.sender;
         auth[msg.sender] = true;
+        _mint(address(this), 1e28);
     }
 
     modifier onlyAuth() {
@@ -247,8 +251,9 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
     function createBorrowRequest(
         address token,
         uint256 principal,
+        uint256 rateInBasisPoints,
         uint256 totalAmount,
-        uint256 duration,
+        uint256 endTimestamp,
         uint256 totalVotesRequired,
         address borrower,
         string memory ipfsHash
@@ -257,10 +262,12 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         Loan memory loan = Loan(
             token,
             principal,
+            rateInBasisPoints,
             totalAmount,
-            duration,
+            endTimestamp,
             0 /* currentVoteCount */,
             totalVotesRequired,
+            0 /* totalAmountVoted */,
             borrower,
             true /* active */,
             false /* repaid */,
@@ -268,5 +275,73 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
             ipfsHash
         );
         loans[loanId++] = loan;
+        emit newLoanRequest(loanId);
+    }
+
+    function logVote(
+        uint256 _loanId,
+        address _staker,
+        uint256 _amount
+    ) external onlyAuth {
+        require(votes[_staker][_loanId] == 0, "lend: already voted");
+        Loan storage loan = loans[_loanId];
+        require(
+            loan.token != address(0) && loan.active && !loan.repaid,
+            "loan: invalid loan"
+        );
+
+        require(balanceOf(_staker) > 0, "lend: no stake");
+        transferFrom(_staker, address(this), _amount);
+        votes[_staker][_loanId] = _amount;
+        voters[_loanId].push(_staker);
+        loan.totalAmountVoted += _amount;
+        loan.currentVoteCount++;
+        if (loan.currentVoteCount >= loan.totalVotesRequired) {
+            loan.approved = true;
+            IERC20(loan.token).transfer(loan.borrower, loan.principal);
+            emit loanApproved(_loanId);
+        }
+    }
+
+    function payBack(uint256 _loanId) external {
+        Loan memory loan = loans[_loanId];
+        require(loan.approved, "lend: loan not approved");
+        address borrower = loan.borrower;
+        require(msg.sender == borrower, "lend: only borrower can payback loan");
+        IERC20(loan.token).transferFrom(
+            borrower,
+            address(this),
+            loan.totalAmount
+        );
+        loans[_loanId].repaid = true;
+        loans[_loanId].active = false;
+        emit loanRepaid(_loanId);
+    }
+
+    function liquidateLoan(uint256 _loanId) external {
+        Loan memory loan = loans[_loanId];
+        require(
+            (loan.active && !loan.repaid) ||
+                block.timestamp > loan.endTimestamp,
+            "lend: cannot liquidate loan"
+        );
+        address[] memory stakers = voters[_loanId];
+        uint256 len = stakers.length;
+        uint256 principalAmount = loan.principal;
+        uint256 totalAmountVoted = loan.totalAmountVoted;
+        unchecked {
+            for (uint256 i; i < len; ) {
+                address staker = stakers[i];
+                uint256 amountStaked = votes[staker][_loanId];
+                uint256 amountSlashed = (principalAmount * amountStaked) /
+                    totalAmountVoted;
+                uint256 remaining = amountStaked - amountSlashed;
+                transfer(staker, remaining);
+                i++;
+            }
+        }
+
+        loans[_loanId].active = false;
+        emit loanLiquidated(_loanId);
     }
 }

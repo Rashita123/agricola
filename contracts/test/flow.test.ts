@@ -17,6 +17,10 @@ const LEND_AMT = BigNumber.from(10_000).mul(BigNumber.from(10).pow(18));
 const STAKE_AMT = BigNumber.from(100).mul(BigNumber.from(10).pow(18));
 const VOTE_AMT = BigNumber.from(10).mul(BigNumber.from(10).pow(18));
 
+const PRINCIPAL = BigNumber.from(10000).mul(BigNumber.from(10).pow(18));
+const TOTAL_AMT = BigNumber.from(11000).mul(BigNumber.from(10).pow(18));
+const ROI = BigNumber.from(10 * 1000);
+
 describe("AGRICOLA", function () {
     let lendContract: Lend;
     let stakeContract: Stake;
@@ -25,6 +29,8 @@ describe("AGRICOLA", function () {
     let borrower: Signer;
     let staker: Signer;
     let lender: Signer;
+
+    let loanId: BigNumber;
 
     before(async function () {
         [governance, borrower, staker, lender] = await ethers.getSigners();
@@ -113,21 +119,74 @@ describe("AGRICOLA", function () {
         expect(shares.gt(ZERO)).to.be.true;
     });
 
-    it("unstake tokens", async () => {
-        let shares = await lendContract.balanceOf(await staker.getAddress());
-        expect(shares.gt(ZERO)).to.be.true;
+    it("createLoanRequest", async () => {
+        const blockNum = await ethers.provider.getBlockNumber();
+        const block = await ethers.provider.getBlock(blockNum);
 
-        await stakeContract
-            .connect(staker)
-            .unstakeTokens(USDCToken.address, STAKE_AMT);
+        await lendContract.createBorrowRequest(
+            USDCToken.address,
+            PRINCIPAL,
+            ROI,
+            TOTAL_AMT,
+            block.timestamp + 7200,
+            1,
+            await borrower.getAddress(),
+            "" // ipfs hash
+        );
+        loanId = (await lendContract.loanId()).sub(1);
+        await Promise.all(
+            [lender, staker, borrower].map((who) =>
+                USDCToken.connect(who).approve(
+                    lendContract.address,
+                    constants.MaxUint256
+                )
+            )
+        );
+    });
 
-        const tokenBalance = await USDCToken.balanceOf(
+    it("vote", async () => {
+        await stakeContract.connect(staker).vote(loanId, VOTE_AMT);
+
+        const stakerBalance = await lendContract.balanceOf(
             await staker.getAddress()
         );
-        expect(tokenBalance.gt(ZERO)).to.be.true;
 
-        shares = await lendContract.balanceOf(await staker.getAddress());
-        expect(shares.eq(ZERO)).to.be.true;
+        expect(stakerBalance.eq(STAKE_AMT.sub(VOTE_AMT)));
+    });
+
+    it("payback", async () => {
+        await USDCToken.faucet(await borrower.getAddress(), TOTAL_AMT);
+        let balance = await USDCToken.balanceOf(await borrower.getAddress());
+        expect(balance.gte(TOTAL_AMT));
+        await lendContract.connect(borrower).payBack(loanId);
+        expect(balance.eq(ZERO));
+
+        expect((await lendContract.loans(loanId)).repaid === true);
+    });
+
+    it("liquidate", async () => {
+        const blockNum = await ethers.provider.getBlockNumber();
+        const block = await ethers.provider.getBlock(blockNum);
+
+        await lendContract.createBorrowRequest(
+            USDCToken.address,
+            PRINCIPAL,
+            ROI,
+            TOTAL_AMT,
+            block.timestamp + 7200,
+            1,
+            await borrower.getAddress(),
+            "" // ipfs hash
+        );
+        loanId = (await lendContract.loanId()).sub(1);
+        await USDCToken.faucet(await staker.getAddress(), STAKE_AMT);
+        await stakeContract.connect(staker).vote(loanId, VOTE_AMT);
+
+        // await ethers.provider.send("evm_increaseTime", [
+        //     block.timestamp + 7200,
+        // ]);
+
+        await lendContract.liquidateLoan(loanId);
     });
 
     it("withdraw lent tokens", async () => {

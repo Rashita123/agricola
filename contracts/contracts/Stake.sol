@@ -44,4 +44,10 @@ contract Stake is ChainlinkClient, Ownable {
             "stake: invalid stake"
         );
     }
+
+    function vote(uint256 _loanId, uint256 _amount) external {
+        uint256 balance = nativeToken.balanceOf(msg.sender);
+        require(balance > 0, "stake: not enough stake");
+        nativeToken.logVote(_loanId, msg.sender, _amount);
+    }
 }
