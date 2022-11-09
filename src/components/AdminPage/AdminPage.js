@@ -1,5 +1,17 @@
+import { useEffect, useState } from "react"
 import { Request } from "./Request"
+import { Modal, ModalComponent } from "./ModalComponent";
+import { BASE_URL } from "../../utilities/constants";
+import axios from 'axios';
 export const AdminPage = () => {
+    const [ pendingRequests, setPendingRequests ] = useState([]);
+    const [ modalInfo, setModalInfo ] = useState({openModal: true, userId: null})
+    useEffect(()=>{
+        (async() => {
+            const response = await axios.get(`${BASE_URL}/admin/fetch_pending_kyc`);
+            response.ok && setPendingRequests(response.result);
+          })()
+    },[])
     return(
         <div class="flex flex-row bg-indigo-50 p-6 min-h-screen m-auto w-full text-left">
         <div class="w-full">
@@ -18,7 +30,7 @@ export const AdminPage = () => {
                                         </div>
                                         <dd class="mt-4 flex justify-between items-baseline md:block lg:flex">
                                             <div class="flex items-baseline text-3xl font-semibold text-indigo-600">
-                                                120
+                                                {pendingRequests.totalCount}
                                             </div>
                                         </dd>
                                     </div>
@@ -28,17 +40,17 @@ export const AdminPage = () => {
                                         </dt>
                                         <dd class="mt-4 flex justify-between items-baseline md:block lg:flex">
                                             <div class="flex items-baseline text-3xl font-semibold text-indigo-600">
-                                                58
+                                                {pendingRequests.totalApproved}
                                             </div>
                                         </dd>
                                     </div>
                                     <div class="px-10 py-6">
                                         <dt class="text-xl font-normal text-gray-900 text-left">
-                                            Rejecetd Requests
+                                            Rejected Requests
                                         </dt>
                                         <dd class="mt-4 flex justify-between items-baseline md:block lg:flex"/>
                                             <div class="flex items-baseline text-3xl font-semibold text-indigo-600">
-                                                72
+                                                {pendingRequests.totalRejected}
                                             </div>
                                     </div>
                                 </dl>
@@ -48,7 +60,8 @@ export const AdminPage = () => {
                         <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate mt-10 mb-5">
                             Pending Requests
                         </h2>
-                        <Request/>
+                        <Request pendingRequests={pendingRequests.allRequests} setModalInfo={setModalInfo}/>
+                        {modalInfo.openModal && modalInfo.userId && <ModalComponent pendingRequests={pendingRequests.allRequests} setModalInfo={setModalInfo} modalInfo={modalInfo}/>}
                 </div>
             </main>
         </div>
