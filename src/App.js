@@ -6,23 +6,43 @@ import {
   Lender,
   Staker,
   Borrower,
-  Landing
+  Landing,
 } from "./pages";
 import { Admin, AdminLogin, AdminPrivateRoute } from "./admin";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/global";
 import { USER_PROFILE } from "./utilities/constants";
 import { PrivateRoute } from "./PrivateRoute";
-import { Web3ReactProvider } from '@web3-react/core'
-import { Web3Provider } from '@ethersproject/providers'
+import { Web3ReactProvider } from "@web3-react/core";
+import { Web3Provider } from "@ethersproject/providers";
+import { fetchUserDetails } from "./api/user";
+import { ACTIONS } from "./reducers/AuthenticationReducer";
+import { UseAuthenticationContext } from "./context/AuthenticationContext";
+import { useEffect } from "react";
 
 function getLibrary(provider) {
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
+  const library = new Web3Provider(provider);
+  library.pollingInterval = 12000;
+  return library;
 }
 
 function App() {
+  const { userState, userDispatch } = UseAuthenticationContext();
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const result = await fetchUserDetails();
+      if (!result.error) {
+        userDispatch({
+          type: ACTIONS.UPDATE_PROFILE_DATA,
+          payload: result.userDetails,
+        });
+      }
+    };
+
+    if (localStorage.getItem("accessToken")) {
+      fetchProfile();
+    }
+  }, []);
   return (
     <div className="App">
       <Web3ReactProvider getLibrary={getLibrary}>
@@ -37,7 +57,10 @@ function App() {
               path={`/${USER_PROFILE.PROFILE_PATH}`}
               element={<ProfilePage />}
             />
-            <Route path={`/${USER_PROFILE.KYC_PATH}`} element={<ProfilePage />} />
+            <Route
+              path={`/${USER_PROFILE.KYC_PATH}`}
+              element={<ProfilePage />}
+            />
           </Route>
 
           <Route path="/" element={<AdminPrivateRoute />}>
@@ -49,7 +72,6 @@ function App() {
           <Route path="/login" element={<Login />} />
         </Routes>
       </Web3ReactProvider>
-
     </div>
   );
 }

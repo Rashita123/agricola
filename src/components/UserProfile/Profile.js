@@ -14,24 +14,24 @@ export const Profile = () => {
   const [city, setCity] = useState(userState.city);
   const [zipCode, setZipCode] = useState(userState.zipcode);
 
-  useEffect(() => {
-    console.log("hiiii");
+  // useEffect(() => {
+  //   console.log("hiiii");
 
-    const fetchProfile = async () => {
-      const result = await fetchUserDetails();
+  //   const fetchProfile = async () => {
+  //     const result = await fetchUserDetails();
 
-      console.log("result   ", result.userDetails, result);
+  //     console.log("result   ", result.userDetails, result);
 
-      if (!result.error) {
-        userDispatch({
-          type: ACTIONS.UPDATE_PROFILE_DATA,
-          payload: result.userDetails,
-        });
-      }
-    };
+  //     if (!result.error) {
+  //       userDispatch({
+  //         type: ACTIONS.UPDATE_PROFILE_DATA,
+  //         payload: result.userDetails,
+  //       });
+  //     }
+  //   };
 
-    fetchProfile();
-  }, []);
+  //   fetchProfile();
+  // }, []);
 
   const submitHandler = async (event) => {
     event.preventDefault();

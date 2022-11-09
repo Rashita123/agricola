@@ -28,24 +28,6 @@ export const Kyc = () => {
     });
   };
   useEffect(() => {
-    const fetchProfile = async () => {
-      const result = await fetchUserDetails();
-
-      console.log("result   ", result.userDetails, result);
-
-      if (!result.error) {
-        userDispatch({
-          type: ACTIONS.UPDATE_PROFILE_DATA,
-          payload: result.userDetails,
-        });
-      }
-    };
-
-    if (localStorage.getItem("accessToken")) {
-      fetchProfile();
-    }
-
-    console.log("kyc-> ", userState);
     setAadhaar(userState.aadhaarNumber);
     setPan(userState.panNumber);
     setUserIncome(userState.income);

@@ -4,12 +4,14 @@ import { ACTIONS } from "../../reducers/AuthenticationReducer";
 import { USER_PROFILE } from "../../utilities/constants";
 import { BasicModal } from "../global";
 import { BorrowRequest } from "./BorrowRequest";
+import { Repay } from "./Repay";
 export const BorrowPage = () => {
   const { userState, userDispatch } = UseAuthenticationContext();
-  const [borrowOrRepay, setBorrowOrRepay] = useState("borerow");
+  const [borrowOrRepay, setBorrowOrRepay] = useState("borrow");
   const [displayModal, setDisplayModal] = useState(true);
 
   useEffect(() => {
+    console.log(userState);
     if (userState.kycCompleted) {
       setDisplayModal(false);
     } else {
@@ -78,13 +80,13 @@ export const BorrowPage = () => {
                     />
                   </svg>
                 </button>
-                {borrowOrRepay === "borrow" && (
+                {borrowOrRepay === "borrow" ? (
                   <div className="min-w-full shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mt-5">
-                    <table className="divide-y divide-gray-200">
-                      <tbody className="min-w-full">
-                        <BorrowRequest />
-                      </tbody>
-                    </table>
+                    <BorrowRequest />
+                  </div>
+                ) : (
+                  <div className="min-w-full shadow overflow-hidden border-b border-gray-200 sm:rounded-lg mt-5">
+                    <Repay />
                   </div>
                 )}
               </div>
