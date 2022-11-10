@@ -3,11 +3,11 @@ const usdcABI = require('./usdc.abi.json')
 
 module.exports = {
     lend: {
-        address: '0xe3aa62D983E06CE9e098Daf5669395AE1f5B9155',
+        address: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
         abi: lendABI
     },
     usdc: {
-        address: '0x5931CD0bD6AE26623107eA805ed422F878dbc594',
+        address: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
         abi: usdcABI
     }
 }

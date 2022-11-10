@@ -19,7 +19,7 @@ export const LoginRightBar = () => {
   const [connected, setConnected] = useState(false);
   const [helperText, setHelperText] = useState({ display: false, message: "" });
 
-  const injectedConnector = new InjectedConnector({ supportedChainIds: [80001], })
+  const injectedConnector = new InjectedConnector({ supportedChainIds: [80001, 31337, 1337] })
   const { activate, active } = useWeb3React()
 
   useEffect(() => {
@@ -57,8 +57,10 @@ export const LoginRightBar = () => {
         .request({ method: "eth_requestAccounts" })
         .then(async (result) => {
           const address = result[0];
+          console.log({ address })
 
           const res = await userLogin(address);
+          console.log({ res })
           if (res.message) {
             setHelperText({ display: true, message: res.message });
           } else {
@@ -76,7 +78,7 @@ export const LoginRightBar = () => {
   }, [active])
   const handleConnect = async () => {
     console.log('handleConnect')
-    await activate(injectedConnector)
+    await activate(injectedConnector, e => console.log(e), true)
     console.log('web3 active', active)
 
   };

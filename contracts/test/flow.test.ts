@@ -9,6 +9,7 @@ import {
     Lend,
     Stake,
     USDCToken,
+    Master__factory,
 } from "../typechain";
 
 const ZERO = BigNumber.from(0).toBigInt();
@@ -204,5 +205,32 @@ describe("FarmLoan", function () {
 
         shares = await lendContract.balanceOf(await lender.getAddress());
         expect(shares.eq(ZERO)).to.be.true;
+    });
+});
+
+describe.only("master", () => {
+    it("go", async () => {
+        const [governance, lender, borrower, staker] =
+            await ethers.getSigners();
+
+        const usdc = await (
+            (await ethers.getContractFactory(
+                "USDCToken",
+                governance
+            )) as USDCToken__factory
+        ).deploy();
+
+        const master = await (
+            (await ethers.getContractFactory(
+                "Master",
+                governance
+            )) as Master__factory
+        ).deploy(usdc.address);
+
+        await Promise.all(
+            [governance, lender, borrower, staker].map(async (a) =>
+                usdc.faucet(await a.getAddress(), PRINCIPAL.mul(1000))
+            )
+        );
     });
 });

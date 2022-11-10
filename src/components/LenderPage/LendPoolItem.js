@@ -4,14 +4,18 @@ import * as ethers from 'ethers'
 import { useWeb3React } from '@web3-react/core'
 import ReactTooltip from 'react-tooltip';
 import config from '../../config'
-
+import { normalize, tenPow18, denormalize } from "../../utilities/web3";
 const { BigNumber } = ethers
+let provider
 
 export const LendPoolItem = ({ logo }) => {
     const [enabled, setEnabled] = useState(true);
     const [usdcBalance, setUSDCBalance] = useState('0');
     const [instances, setInstances] = useState(null);
     const [lendInput, setLendInput] = useState(0)
+
+    const [totalPoolValue, setTotalPoolValue] = useState(0)
+    const [amtLent, setAmtLent] = useState(0)
 
     const { userState, _userDispath } = UseAuthenticationContext();
     const userAddress = localStorage.getItem('metamask-account')
@@ -21,28 +25,42 @@ export const LendPoolItem = ({ logo }) => {
 
     useEffect(() => {
         if (!window.instances) {
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            provider = new ethers.providers.Web3Provider(window.ethereum)
             const lendInstance = new ethers.Contract(config.lend.address, config.lend.abi, provider.getSigner())
             const usdcInstance = new ethers.Contract(config.usdc.address, config.usdc.abi, provider.getSigner())
+            console.log('setting instances')
             setInstances(window.instances = { lendInstance, usdcInstance })
+            window.normalize = normalize
+            window.denormalize = denormalize
         }
     }, [])
 
     useEffect(() => {
         (async () => {
             if (!instances) return
+            provider = new ethers.providers.Web3Provider(window.ethereum)
             const balance = await instances.usdcInstance.balanceOf(userAddress)
-            console.log({ balance })
-            setUSDCBalance(balance?.toString() || 0)
+            setUSDCBalance(normalize(balance) || 0)
+            console.log(`user ${userAddress}: usdcBalance: ${balance?.toString()}, normalizedBalance: ${normalize(balance)}`)
+
+
+            const poolValue = normalize(await instances.usdcInstance.balanceOf(config.lend.address))
+            console.log('pool value', poolValue)
+            setTotalPoolValue(poolValue)
+            window.poolValue = poolValue
+
+            const _amtLent = normalize(await instances.lendInstance.amountLent(userAddress))
+            console.log('amtLent', _amtLent)
+            setAmtLent(_amtLent)
         })()
     }, [instances, userAddress])
 
     const handleLend = async () => {
         if (!instances || !lendInput || lendInput.startsWith('0')) return
         window.config = config
-        if (BigNumber.from(await instances.usdcInstance.allowance(userAddress, config.lend.address)).lt(lendInput))
-            await instances.usdcInstance.approve(config.lend.address, ethers.constants.MaxUint256)
-        await instances.lendInstance.lendTokens(BigNumber.from(lendInput).mul(10n ** 18n), config.usdc.address)
+        // if (BigNumber.from(await instances.usdcInstance.allowance(userAddress, config.lend.address)).lt(lendInput))
+        //     await instances.usdcInstance.approve(config.lend.address, ethers.constants.MaxUint256)
+        await instances.lendInstance.lend(BigNumber.from(lendInput).mul(10n ** 18n))
         // show modal and refresh
     }
 
@@ -61,13 +79,13 @@ export const LendPoolItem = ({ logo }) => {
                                 {/* <!-- {{token}} --> */}
                                 USDC
                             </p>
-                            <p class="text-sm font-medium text-gray-500 text-ellipsis">0x15674e372bf8f8959471bb0ed1cf4066ba95f751</p>
+                            <p class="text-sm font-medium text-gray-500 text-ellipsis">{config.usdc.address}</p>
                         </div>
 
                         <div class="flex flex-col p-2 text-left justify-between">
                             <div>
                                 <span>Pool Value: </span>
-                                <span class="font-bold text-indigo-600">$12</span>
+                                <span class="font-bold text-indigo-600">${totalPoolValue}</span>
                             </div>
                             <div>
                                 <span>USDC Price: </span>
@@ -127,7 +145,7 @@ export const LendPoolItem = ({ logo }) => {
                     <div class="flex flex-row bg-gray-50 -ml-6 -mr-6 -mb-6 justify-between p-6 rounded-lg">
                         <div>
                             <span>Amount lent: </span>
-                            <span class="font-bold text-indigo-600">12 USDC</span>
+                            <span class="font-bold text-indigo-600">{amtLent} USDC</span>
                         </div>
                     </div>
                 </div>

@@ -19,14 +19,14 @@ export const BorrowPage = () => {
 
   return (
     <React.Fragment>
-      {displayModal && (
+      {/* {displayModal && (
         <BasicModal
           title="Complete Your KYC first"
           description="You have to complete your KYC before taking any loan. Click the button below to proceed further."
           display={displayModal}
           link={`/${USER_PROFILE.KYC_PATH}`}
         />
-      )}
+      )} */}
 
       <div className="flex flex-row bg-indigo-50 p-6 min-h-screen m-auto w-full">
         <div className="w-full h-full">
