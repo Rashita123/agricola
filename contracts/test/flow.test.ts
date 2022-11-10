@@ -21,7 +21,7 @@ const PRINCIPAL = BigNumber.from(10000).mul(BigNumber.from(10).pow(18));
 const TOTAL_AMT = BigNumber.from(11000).mul(BigNumber.from(10).pow(18));
 const ROI = BigNumber.from(10 * 1000);
 
-describe("AGRICOLA", function () {
+describe("FarmLoan", function () {
     let lendContract: Lend;
     let stakeContract: Stake;
     let USDCToken: USDCToken;

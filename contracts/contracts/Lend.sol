@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
+contract Lend is ChainlinkClient, ERC20("FARMLOAN", "FLN") {
     using SafeERC20 for IERC20;
 
     uint256 public constant MIN_VOTES = 1;
@@ -79,17 +79,17 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         allowedTokens.push(token);
     }
 
-    function updateMultiplier(
-        address token,
-        uint16 multiplier
-    ) external onlyGovernance {
+    function updateMultiplier(address token, uint16 multiplier)
+        external
+        onlyGovernance
+    {
         tokenMultiplier[token] = multiplier;
     }
 
-    function setPriceFeedContract(
-        address token,
-        address priceFeed
-    ) public onlyGovernance {
+    function setPriceFeedContract(address token, address priceFeed)
+        public
+        onlyGovernance
+    {
         tokenPriceFeedMapping[token] = priceFeed;
     }
 
@@ -110,10 +110,11 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         _mint(msg.sender, sharesToMint);
     }
 
-    function getSharesToMint(
-        address token,
-        uint256 amount
-    ) public view returns (uint256) {
+    function getSharesToMint(address token, uint256 amount)
+        public
+        view
+        returns (uint256)
+    {
         return (amount * uint256(tokenMultiplier[token])) / 1000;
     }
 
@@ -126,7 +127,7 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         IERC20(token).transferFrom(who, address(this), amount);
     }
 
-    function withdrawShares(address token, uint amount) external {
+    function withdrawShares(address token, uint256 amount) external {
         require(balanceOf(msg.sender) >= amount, "lend: no outstanding shares");
 
         uint256 fees = processFeesAmount(amount);
@@ -137,10 +138,11 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         IERC20(token).transfer(msg.sender, amountAfterFees);
     }
 
-    function getSharesToBurn(
-        address token,
-        uint256 amount
-    ) public view returns (uint256) {
+    function getSharesToBurn(address token, uint256 amount)
+        public
+        view
+        returns (uint256)
+    {
         return (amount * 1000) / uint256(tokenMultiplier[token]);
     }
 
@@ -176,16 +178,19 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         IERC20(_token).safeTransferFrom(msg.sender, governance, fees);
     }
 
-    function processFeesAmount(
-        uint256 _amount
-    ) internal view returns (uint256) {
+    function processFeesAmount(uint256 _amount)
+        internal
+        view
+        returns (uint256)
+    {
         return (FEES_NUMERATOR * _amount) / FEES_DENOMINATOR;
     }
 
-    function getUserTokenValue(
-        address user,
-        address token
-    ) public view returns (uint256) {
+    function getUserTokenValue(address user, address token)
+        public
+        view
+        returns (uint256)
+    {
         return lendingBalance[token][user];
     }
 
@@ -227,16 +232,16 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
         }
     }
 
-    function getUserLendingBalanceEthValue(
-        address user,
-        address token
-    ) public view returns (uint256) {
+    function getUserLendingBalanceEthValue(address user, address token)
+        public
+        view
+        returns (uint256)
+    {
         if (uniqueTokensLent[user] <= 0) {
             return 0;
         }
         return
-            (lendingBalance[token][user] * getTokenEthPrice(token)) /
-            (10 ** 18);
+            (lendingBalance[token][user] * getTokenEthPrice(token)) / (10**18);
     }
 
     function getTokenEthPrice(address token) public view returns (uint256) {
@@ -265,13 +270,13 @@ contract Lend is ChainlinkClient, ERC20("AGRICOLA", "AGC") {
             rateInBasisPoints,
             totalAmount,
             endTimestamp,
-            0 /* currentVoteCount */,
+            0, /* currentVoteCount */
             totalVotesRequired,
-            0 /* totalAmountVoted */,
+            0, /* totalAmountVoted */
             borrower,
-            true /* active */,
-            false /* repaid */,
-            false /* approved */,
+            true, /* active */
+            false, /* repaid */
+            false, /* approved */
             ipfsHash
         );
         loans[loanId++] = loan;
