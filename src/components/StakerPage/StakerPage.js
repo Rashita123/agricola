@@ -3,7 +3,7 @@ import { normalize, denormalize } from "../../utilities/web3";
 import * as ethers from 'ethers'
 
 import { StakeLoans } from "./StakeLoans"
-import config from "../../config";
+import config, { usdc } from "../../config";
 
 
 export const StakerPage = () => {
@@ -14,13 +14,18 @@ export const StakerPage = () => {
     const [bal, setBal] = useState(0)
     const [usdcBal, setUsdcBal] = useState(0)
 
+    const [modalInfo, setModalInfo] = useState({ openModal: true, userId: null })
+
+
+    const [numLoans, setNumloans] = useState(null)
+
     const [stakeInput, setStakeInput] = useState(0)
 
     const userAddress = localStorage.getItem('metamask-account')
 
 
     useEffect(() => {
-        if (!window.instances) {
+        if (!instances) {
             const provider = new ethers.providers.Web3Provider(window.ethereum)
             const lendInstance = new ethers.Contract(config.lend.address, config.lend.abi, provider.getSigner())
             const usdcInstance = new ethers.Contract(config.usdc.address, config.usdc.abi, provider.getSigner())
@@ -43,12 +48,12 @@ export const StakerPage = () => {
             setBal(balVal)
 
             setUsdcBal(normalize(await instances.usdcInstance.balanceOf(userAddress)))
+            console.log({ stakedVal, withdrawableVal, balVal }, await instances.lendInstance.balanceOf(userAddress))
         })()
     }, [instances, userAddress])
 
     const handleStake = async () => {
         if (!instances || !stakeInput || stakeInput.startsWith('0')) return
-        console.log(denormalize(stakeInput), stakeInput)
         await instances.lendInstance.stake(denormalize(stakeInput))
     }
 
@@ -116,16 +121,16 @@ export const StakerPage = () => {
                                                 <p class="text-2xl font-semibold text-gray-900">
                                                     FML
                                                 </p>
-                                                <p class="text-sm font-medium text-gray-500 text-ellipsis">{config.lend.address}</p>
+                                                <p class="text-sm font-medium text-gray-500 text-ellipsis">0x3e1fB19E002c83e39a7307B1e5eF9A216B605ce3</p>
                                             </div>
 
                                             <div class="flex flex-col p-2 text-left justify-between">
                                                 <div>
                                                     <span>APY: </span>
-                                                    <span class="font-bold text-indigo-600">12%</span>
+                                                    <span class="font-bold text-indigo-600">{1.22322}%</span>
                                                 </div>
                                                 <div>
-                                                    <span>FML Price: </span>
+                                                    <span>RUP Price: </span>
                                                     <span class="font-bold text-indigo-600">$1</span>
                                                 </div>
                                             </div>
@@ -154,10 +159,10 @@ export const StakerPage = () => {
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                             </svg>
                                                         </div>
-                                                        <input type="text" onChange={e => setStakeInput(e.target.value)} class="h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 text-base border-gray-300 rounded-md" placeholder="Enter amount" />
+                                                        <input onChange={e => setStakeInput(e.target.value)} type="text" class="h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 text-base border-gray-300 rounded-md" placeholder="Enter amount" />
                                                     </div>
                                                 </div>
-                                                <button type="button" onClick={handleStake} class="justify-center mt-4 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                <button onClick={handleStake} type="button" class="justify-center mt-4 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                                     Stake
                                                 </button>
                                             </div>
@@ -183,9 +188,9 @@ export const StakerPage = () => {
                             </div>
                             <div class="mt-4">
                                 <h2 class="mt-8 m-4 text-xxl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-                                    Verify Loans
+                                    Verify Loans ({numLoans || 0})
                                 </h2>
-                                <StakeLoans />
+                                <StakeLoans modalInfo={modalInfo} setNumloans={setNumloans} setModalInfo={setModalInfo} numLoans={numLoans} />
                             </div>
 
                         </div>

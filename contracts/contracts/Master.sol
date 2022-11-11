@@ -19,12 +19,11 @@ contract Master {
         uint256 value
     );
 
-    function transfer(address recipient, uint256 amount)
-        external
-        returns (bool)
-    {
-        balanceOf[msg.sender] -= amount;
-        balanceOf[recipient] += amount;
+    function transfer(address recipient, uint256 amount) public returns (bool) {
+        unchecked {
+            balanceOf[msg.sender] -= amount;
+            balanceOf[recipient] += amount;
+        }
         emit Transfer(msg.sender, recipient, amount);
         return true;
     }
@@ -39,10 +38,12 @@ contract Master {
         address sender,
         address recipient,
         uint256 amount
-    ) external returns (bool) {
+    ) public returns (bool) {
         // allowance[sender][msg.sender] -= amount;
-        balanceOf[sender] -= amount;
-        balanceOf[recipient] += amount;
+        unchecked {
+            balanceOf[sender] -= amount;
+            balanceOf[recipient] += amount;
+        }
         emit Transfer(sender, recipient, amount);
         return true;
     }
@@ -50,6 +51,8 @@ contract Master {
     function mint(address who, uint256 amount) public {
         balanceOf[who] += amount;
         totalSupply += amount;
+        withdrawableStake[who] += amount;
+        staked[who] += amount;
         emit Transfer(address(0), who, amount);
     }
 
@@ -58,6 +61,8 @@ contract Master {
         totalSupply -= amount;
         emit Transfer(who, address(0), amount);
     }
+
+    /// START FROM HERE
 
     uint256 public constant MIN_VOTES = 1;
 
@@ -90,15 +95,15 @@ contract Master {
     mapping(address => uint256) public withdrawableStake;
 
     function stake(uint256 amount) public {
-        this.transferFrom(msg.sender, address(this), amount);
-        staked[msg.sender] += amount;
-        withdrawableStake[msg.sender] += amount;
+        usdc.transferFrom(msg.sender, address(this), amount);
+        mint(msg.sender, amount);
     }
 
     function unStake(uint256 amount) public {
         staked[msg.sender] -= amount;
         withdrawableStake[msg.sender] -= amount;
-        transferFrom(address(this), msg.sender, amount);
+        usdc.transferFrom(address(this), msg.sender, amount);
+        burn(msg.sender, amount);
     }
 
     struct Loan {
@@ -152,8 +157,8 @@ contract Master {
     function logVote(uint256 loanId, uint256 amount) external {
         Loan storage loan = loans[loanId];
 
-        this.transferFrom(msg.sender, address(this), amount);
-
+        transferFrom(msg.sender, address(this), amount);
+        // unchecked {
         withdrawableStake[msg.sender] -= amount;
         voters[loanId].push(msg.sender);
         loan.currentVoteCount++;
@@ -163,6 +168,7 @@ contract Master {
             loan.approved = true;
             usdc.transferFrom(address(this), loan.borrower, loan.principal);
         }
+        // }
     }
 
     function payBack(uint256 loanId) public {

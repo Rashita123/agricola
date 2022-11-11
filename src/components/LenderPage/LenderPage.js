@@ -2,9 +2,7 @@ import { LendPoolItem } from "./LendPoolItem"
 import { useEffect, useState } from "react"
 export const LenderPage = () => {
     const [poolVal, setPoolVal] = useState(0)
-    useEffect(() => {
-        if (window.poolValue) setPoolVal(window.poolVal)
-    }, [])
+
     return (
         <div class="flex flex-row bg-indigo-50 p-6 min-h-screen m-auto w-full">
             <div class="w-full h-full">
@@ -36,7 +34,7 @@ export const LenderPage = () => {
                                             </dt>
                                             <dd class="mt-4 flex justify-between items-baseline md:block lg:flex">
                                                 <div class="flex items-baseline text-3xl font-semibold text-indigo-600">
-                                                    20,000
+                                                    {poolVal ? (parseFloat(poolVal) * .2457).toFixed(2) : '...'}
                                                     <span class="ml-2 text-base font-medium text-gray-500">
                                                         USD
                                                     </span>
@@ -56,8 +54,8 @@ export const LenderPage = () => {
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <LendPoolItem logo="assets/logos/usdc.png"></LendPoolItem>
-                                <LendPoolItem logo="assets/logos/usdt.png"></LendPoolItem>
+                                <LendPoolItem logo="assets/logos/usdc.png" setPoolVal={setPoolVal}></LendPoolItem>
+                                <LendPoolItem logo="assets/logos/usdt.png" setPoolVal></LendPoolItem>
                             </div>
                         </div>
                     </div>
