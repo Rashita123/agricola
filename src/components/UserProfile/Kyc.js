@@ -1,14 +1,40 @@
+import { useEffect, useState } from "react";
+import { fetchUserDetails, updateKycDetails } from "../../api/user";
 import { UseAuthenticationContext } from "../../context/AuthenticationContext";
 import { ACTIONS } from "../../reducers/AuthenticationReducer";
 
 export const Kyc = () => {
-  const submitHandler = (event) => {
-    const { userState, userDispatch } = UseAuthenticationContext();
+  const { userState, userDispatch } = UseAuthenticationContext();
+
+  const [aadhaar, setAadhaar] = useState("");
+  const [pan, setPan] = useState("");
+  const [userIncome, setUserIncome] = useState("");
+  const [userOccupaton, setUserOccupaton] = useState("");
+  const [userDetails, setUserDetails] = useState("");
+
+  const submitHandler = async (event) => {
     event.preventDefault();
+    const result = await updateKycDetails(
+      localStorage.getItem("metamask-account"),
+      aadhaar,
+      pan,
+      userIncome,
+      userOccupaton,
+      userDetails
+    );
+    console.log("KYC completed, js: ", result);
     userDispatch({
       type: ACTIONS.KYC_COMPLETE,
     });
   };
+  useEffect(() => {
+    setAadhaar(userState.aadhaarNumber);
+    setPan(userState.panNumber);
+    setUserIncome(userState.income);
+    setUserOccupaton(userState.occupation);
+    setUserDetails(userState.about);
+  }, []);
+
   return (
     <div className="bg-indigo-50 p-10 h-full rounded-3xl">
       <div className="w-full h-full">
@@ -49,6 +75,8 @@ export const Kyc = () => {
                           autoComplete="off"
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                           required
+                          value={aadhaar}
+                          onChange={(e) => setAadhaar(e.target.value)}
                         />
                       </div>
 
@@ -69,6 +97,8 @@ export const Kyc = () => {
                           autoComplete="pan"
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                           required
+                          value={pan}
+                          onChange={(e) => setPan(e.target.value)}
                         />
                       </div>
 
@@ -87,6 +117,8 @@ export const Kyc = () => {
                           autoComplete="off"
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                           required
+                          value={userIncome}
+                          onChange={(e) => setUserIncome(e.target.value)}
                         />
                       </div>
 
@@ -105,6 +137,8 @@ export const Kyc = () => {
                           autoComplete="occupation"
                           className="mt-1 h-14 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-base border-gray-300 rounded-md border px-3"
                           required
+                          onChange={(e) => setUserOccupaton(e.target.value)}
+                          value={userOccupaton}
                         />
                       </div>
 
@@ -120,9 +154,11 @@ export const Kyc = () => {
                           id="about"
                           name="about"
                           rows="3"
+                          value={userDetails}
+                          onChange={(e) => setUserDetails(e.target.value)}
                           className="mt-1 max-w-lg shadow-sm block w-full focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md border px-3"
                         ></textarea>
-                        <p className="mt-2 text-sm text-gray-400 text-left">
+                        <p className="mt-2 text-sm text-gray-400 text-left pt-2">
                           Write a few sentences about yourself.
                         </p>
                       </div>

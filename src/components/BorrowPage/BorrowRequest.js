@@ -13,9 +13,10 @@ export const BorrowRequest = () => {
                   <div class="space-y-8 sm:space-y-5">
                     <div>
                       <div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        {/* <h1 className="leading-6 font-medium text-gray-900 text-3xl text-center mb-3"> */}
+                        <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate mb-5 text-center">
                           Loan Request
-                        </h3>
+                        </h1>
                         <p class="mt-1 max-w-2xl text-sm text-gray-500">
                           This information will be used by stakers to approve
                           your request, ensure the details are true to your
@@ -276,7 +277,7 @@ export const BorrowRequest = () => {
                     </div>
                   </div>
 
-                  <div class="pt-5">
+                  <div class="pt-3">
                     <div class="flex justify-end">
                       <button
                         type="submit"
